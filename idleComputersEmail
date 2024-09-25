@@ -1,0 +1,34 @@
+# Import the Active Directory module
+Import-Module ActiveDirectory
+
+# Define variables
+$ou = "OU=XXXXXX,DC=yourdomain,DC=com"
+$csvFilePath = "C:\XXX"
+$DaysInactive = 367
+$time = (Get-Date).Adddays(-($DaysInactive))
+
+# Find stale objects and output them to a .csv
+Get-ADComputer -Filter {LastLogonTimeStamp -lt $time} -Properties DistinguishedName | Export-CSV $csvFilePath –NoTypeInformation
+
+# Get content of CSV for email body
+$staleComputers = import-csv $csvFilePath
+
+# Email results to ticket system
+# Define variables
+$smtpServer = "smtp.gmail.com"
+$smtpPort = 587
+$from = "XXXXXX@gmail.com"
+$to = "XXXX@example.com"
+$subject = "Stale Computer Objects"
+$body = "The following computers have not been logged into for over a year.  Are they still in use?" + "`n" + $staleComputers + "`n" + "To stop this email, delete the task in Task Scheduler on the Domain Controller.  It's set to send monthly reports."
+$username = "your_email@gmail.com"
+$password = "your_gmail_password"
+
+# Create a secure string for the password
+$securePassword = ConvertTo-SecureString $password -AsPlainText -Force
+
+# Create the credentials
+$credential = New-Object System.Management.Automation.PSCredential($username, $securePassword)
+
+# Send the email
+Send-MailMessage -From $from -To $to -Subject $subject -Body $body -SmtpServer $smtpServer -Port $smtpPort -Credential $credential -UseSsl
