@@ -1,0 +1,18 @@
+# Define variables
+$smtpServer = "smtp.gmail.com"
+$smtpPort = 587
+$from = "your_email@gmail.com"
+$to = "recipient_email@example.com"
+$subject = "Test Email from PowerShell"
+$body = "This is a test email sent from a PowerShell script."
+$username = "your_email@gmail.com"
+$password = "your_app_password"  # Use your Gmail password or App Password
+
+# Create a secure string for the password
+$securePassword = ConvertTo-SecureString $password -AsPlainText -Force
+
+# Create the credentials
+$credential = New-Object System.Management.Automation.PSCredential($username, $securePassword)
+
+# Send the email
+Send-MailMessage -From $from -To $to -Subject $subject -Body $body -SmtpServer $smtpServer -Port $smtpPort -Credential $credential -UseSsl
