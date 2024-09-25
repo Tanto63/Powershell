@@ -2,7 +2,6 @@
 Import-Module ActiveDirectory
 
 # Define variables
-$ou = "OU=XXXXXX,DC=yourdomain,DC=com"
 $csvFilePath = "C:\XXX"
 $DaysInactive = 367
 $time = (Get-Date).Adddays(-($DaysInactive))
